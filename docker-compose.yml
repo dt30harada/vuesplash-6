@@ -1,0 +1,60 @@
+# @notice
+# Please do 'docker-compose up -d' at the project root.
+
+version: '3.7'
+
+services:
+
+  db:
+    # @see: https://hub.docker.com/_/mysql
+    image: mysql:5.7
+    ports:
+      - "${DOCKER_DB_PORT}:3306"
+    environment:
+      # required
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PW}"
+      # create this db automatically
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      # create this user automatically
+      MYSQL_USER:     "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      # make db data persistent
+      - db_data:/var/lib/mysql
+      # excute the sql files to initialize db
+      # - ${PWD}/docker/mysql/init:/docker-entrypoint-initdb.d/
+      # mount the config dir on this mysql container
+      - ${PWD}/docker/mysql/conf.d:/etc/mysql/conf.d
+    networks:
+      - backend
+
+  app:
+    build:
+      context: ${PWD}/docker/app
+      dockerfile: Dockerfile
+    # image: app/php74
+    volumes:
+      # mount the project on this app container
+      - ${PWD}:/var/www/html
+      # mount the config dir on this app container
+      - ${PWD}/docker/app/conf.d/php-jp.ini:/usr/local/etc/php/conf.d/php-jp.ini
+    networks:
+      - backend
+    ports:
+      - "${DOCKER_APP_PORT}:80"
+    depends_on:
+      - db
+
+  node:
+    build: ${PWD}/docker/node
+    volumes:
+      # mount the project on this node container
+      - ${PWD}:/var/www/html
+
+networks:
+  backend:
+    driver: "bridge"
+
+volumes:
+  db_data:
+    driver: "local"
