@@ -13,6 +13,8 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 RUN a2enmod rewrite
 
+# if you want to check available php-extensions list of this docker image,
+# do this command: 'docker run --rm php:7.4-apache docker-php-ext-install'
 RUN docker-php-ext-install \
         pdo_mysql
     # && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
