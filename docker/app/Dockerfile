@@ -5,6 +5,9 @@ RUN apt-get update \
     && apt-get install -y \
         # libpq-dev \
         unzip
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev
 
 RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
 
@@ -16,9 +19,9 @@ RUN a2enmod rewrite
 # if you want to check available php-extensions list of this docker image,
 # do this command: 'docker run --rm php:7.4-apache docker-php-ext-install'
 RUN docker-php-ext-install \
-        pdo_mysql
-    # && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    # && docker-php-ext-install -j$(nproc) gd \
+        pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
 
 RUN apt-get -y autoremove \
     && apt-get clean \
